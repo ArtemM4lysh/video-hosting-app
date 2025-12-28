@@ -1,0 +1,87 @@
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs and debugging files
+*.log
+*.trace
+npm-debug.log*
+
+# Dependency directories
+node_modules/
+bower_components/
+
+# Build directories
+dist/
+out/
+build/
+
+# IDE-specific files
+.vscode/
+.idea/
+*.iml
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Python-related files
+__pycache__/
+*.py[cod]
+
+# Java-related files
+*.class
+
+# JavaScript/TypeScript coverage reports
+coverage/
+*.lcov
+*.nyc_output
+
+# Packager files
+*.lock
+yarn.lock
+package-lock.json
+
+# Compiled files
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Archives and compressed files
+*.zip
+*.tar.gz
+*.7z
+
+# Version control directories
+.svn/
+.hg/
+.nuget/
+
+# Custom ignore patterns (adjust as needed)
+logs/
+*.sql
+*.sqlite3
+*.db
+*.pid
+
+# Ignore working files
+*.bak
+*.old
+*.orig
+
+# Ignore by languages/frameworks:
+## React or Angular
+/.angular/cache/
+
+# Add production.py to the ignore list
+production.py

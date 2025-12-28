@@ -2,9 +2,16 @@ from .base import *
 
 DEBUG = True
 
-SECRET_KEY = "YOUR-INSECURE-DEV-KEY"
+SECRET_KEY = "123qwe123"
 
-ALLOWED_HOSTS = ["*"]
+# CORS Configuration
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Vite default port
+    "http://127.0.0.1:5173",
+]
+CORS_ALLOW_CREDENTIALS = True
+
+
 
 DATABASES = {
     "default": {
