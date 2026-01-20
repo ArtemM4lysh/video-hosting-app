@@ -31,7 +31,6 @@ function VideoUpload({ onSuccess }) {
     setError('');
 
     try {
-      // Step 1: Create video metadata and get presigned URL
       const fileExtension = file.name.split('.').pop();
       const { video_id, upload_url } = await videoService.createVideo({
         title,
@@ -40,21 +39,17 @@ function VideoUpload({ onSuccess }) {
         file_extension: fileExtension,
       });
 
-      // Step 2: Upload directly to S3
       await videoService.uploadToS3(upload_url, file, setUploadProgress);
 
-      // Step 3: Notify backend that upload is complete
       await videoService.markUploadComplete(video_id);
 
       alert('Video uploaded successfully!');
 
-      // Reset form
       setTitle('');
       setDescription('');
       setFile(null);
       setUploadProgress(0);
 
-      // Call success callback if provided
       if (onSuccess) {
         onSuccess();
       }

@@ -15,7 +15,6 @@ class VideoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Users can see all videos, but filter can be added
         return Video.objects.all()
 
     def get_serializer_class(self):
@@ -24,24 +23,17 @@ class VideoViewSet(viewsets.ModelViewSet):
         return VideoSerializer
 
     def create(self, request):
-        """
-        Step 1: Create video metadata and generate presigned upload URL
-        Frontend will use this URL to upload directly to S3
-        """
         serializer = VideoCreateSerializer(data=request.data)
         if serializer.is_valid():
-            # Generate unique S3 key
             file_extension = request.data.get('file_extension', 'mp4')
             s3_key = f"videos/{request.user.id}/{uuid.uuid4()}.{file_extension}"
 
-            # Create video record
             video = serializer.save(
                 user=request.user,
                 s3_key=s3_key,
                 status='processing'
             )
 
-            # Generate presigned URL for upload
             s3_client = boto3.client(
                 's3',
                 region_name=settings.AWS_S3_REGION_NAME,
@@ -56,7 +48,7 @@ class VideoViewSet(viewsets.ModelViewSet):
                     'Key': s3_key,
                     'ContentType': 'video/mp4'
                 },
-                ExpiresIn=3600  # URL expires in 1 hour
+                ExpiresIn=3600
             )
 
             return Response({
@@ -68,20 +60,11 @@ class VideoViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['post'])
-    def upload_complete(self, request, pk=None):
-        """
-        Step 2: Mark upload as complete after frontend uploads to S3
-        """
+    def upload_complete(self, request):
         video = self.get_object()
 
         if video.user != request.user:
             return Response({'error': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
-
-        # Here you would typically:
-        # 1. Verify the file exists in S3
-        # 2. Extract video metadata (duration, resolution)
-        # 3. Generate thumbnail
-        # 4. Update status to 'ready'
 
         video.status = 'ready'
         video.save()
@@ -91,7 +74,6 @@ class VideoViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def my_videos(self, request):
-        """Get videos uploaded by the current user"""
         videos = Video.objects.filter(user=request.user)
         serializer = VideoSerializer(videos, many=True)
         return Response(serializer.data)
