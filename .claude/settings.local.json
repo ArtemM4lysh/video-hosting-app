@@ -4,7 +4,22 @@
       "Bash(tree:*)",
       "Bash(npm run dev:*)",
       "Bash(python manage.py show_urls:*)",
-      "Bash(python manage.py shell:*)"
+      "Bash(python manage.py shell:*)",
+      "Bash(git -C \"C:/Users/artem/PycharmProjects/video_hosting_app\" log --oneline)",
+      "Bash(python manage.py makemigrations:*)",
+      "Bash(dir:*)",
+      "Bash(source ../.venv/Scripts/activate)",
+      "Bash(python manage.py migrate:*)",
+      "Bash(python manage.py runserver:*)",
+      "Bash(python manage.py check:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(xargs kill -9)",
+      "Bash(python manage.py:*)",
+      "Bash(python -c:*)",
+      "Bash(grep:*)",
+      "Bash(DJANGO_SETTINGS_MODULE=config.settings.production python manage.py:*)",
+      "Bash(xargs kill:*)"
     ]
   }
 }

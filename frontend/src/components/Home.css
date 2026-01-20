@@ -5,6 +5,12 @@
   min-height: calc(100vh - 80px);
 }
 
+.home-container-with-sidebar {
+  margin-left: 280px;
+  padding: 24px;
+  min-height: calc(100vh - 60px);
+}
+
 .search-results-header {
   margin-bottom: 32px;
 }
@@ -251,6 +257,11 @@
 
 @media (max-width: 768px) {
   .home-container {
+    padding: 16px;
+  }
+
+  .home-container-with-sidebar {
+    margin-left: 0;
     padding: 16px;
   }
 

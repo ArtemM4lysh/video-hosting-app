@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Video
+from .models import Video, Subscription, Like, Playlist, PlaylistVideo, WatchHistory
 from ..users.serializers import UserSerializer
 
 
@@ -54,3 +54,59 @@ class VideoCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
         fields = ['title', 'description', 'file_size']
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    subscriber = UserSerializer(read_only=True)
+    channel = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Subscription
+        fields = ['id', 'subscriber', 'channel', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+
+class LikeSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    video = VideoSerializer(read_only=True)
+
+    class Meta:
+        model = Like
+        fields = ['id', 'user', 'video', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+
+class PlaylistVideoSerializer(serializers.ModelSerializer):
+    video = VideoSerializer(read_only=True)
+
+    class Meta:
+        model = PlaylistVideo
+        fields = ['id', 'video', 'position', 'added_at']
+        read_only_fields = ['id', 'added_at']
+
+
+class PlaylistSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    playlist_videos = PlaylistVideoSerializer(many=True, read_only=True)
+    video_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Playlist
+        fields = ['id', 'user', 'name', 'description', 'is_public', 'video_count', 'playlist_videos', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'user', 'created_at', 'updated_at']
+
+
+class PlaylistCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Playlist
+        fields = ['name', 'description', 'is_public']
+
+
+class WatchHistorySerializer(serializers.ModelSerializer):
+    video = VideoSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = WatchHistory
+        fields = ['id', 'user', 'video', 'watched_at']
+        read_only_fields = ['id', 'watched_at']

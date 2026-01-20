@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import videoService from '../services/video';
+import subscriptionService from '../services/subscription';
+import likeService from '../services/like';
 import Avatar from './Avatar';
 import './Watch.css';
 
@@ -11,6 +13,10 @@ const Watch = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [hasIncrementedView, setHasIncrementedView] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [subscriberCount, setSubscriberCount] = useState(0);
+  const [likeCount, setLikeCount] = useState(0);
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -22,7 +28,21 @@ const Watch = () => {
       setLoading(true);
       const response = await videoService.getVideo(videoId);
       setVideo(response);
+      setSubscriberCount(response.user.subscriber_count);
+      setLikeCount(response.likes_count);
       setError(null);
+
+      // Check if user is subscribed and if video is liked
+      try {
+        const [subStatus, likeStatus] = await Promise.all([
+          subscriptionService.checkSubscription(response.user.id),
+          likeService.checkLike(videoId)
+        ]);
+        setIsSubscribed(subStatus.is_subscribed);
+        setIsLiked(likeStatus.is_liked);
+      } catch (err) {
+        console.error('Error checking subscription/like status:', err);
+      }
     } catch (err) {
       console.error('Error fetching video:', err);
       setError('Failed to load video');
@@ -50,6 +70,34 @@ const Watch = () => {
   const handleChannelClick = () => {
     if (video && video.user) {
       navigate(`/channel/${video.user.id}`);
+    }
+  };
+
+  const handleSubscribe = async () => {
+    try {
+      if (isSubscribed) {
+        await subscriptionService.unsubscribe(video.user.id);
+        setIsSubscribed(false);
+        setSubscriberCount((prev) => Math.max(0, prev - 1));
+      } else {
+        await subscriptionService.subscribe(video.user.id);
+        setIsSubscribed(true);
+        setSubscriberCount((prev) => prev + 1);
+      }
+    } catch (err) {
+      console.error('Error toggling subscription:', err);
+      alert('Failed to update subscription. Please try again.');
+    }
+  };
+
+  const handleLike = async () => {
+    try {
+      const response = await likeService.toggleLike(video.id);
+      setIsLiked(response.liked);
+      setLikeCount(response.likes_count);
+    } catch (err) {
+      console.error('Error toggling like:', err);
+      alert('Failed to update like. Please try again.');
     }
   };
 
@@ -132,10 +180,31 @@ const Watch = () => {
         <div className="video-details">
           <h1 className="video-title">{video.title}</h1>
 
-          <div className="video-stats">
-            <span>{formatViewCount(video.views_count)} views</span>
-            <span className="separator">•</span>
-            <span>{formatDate(video.created_at)}</span>
+          <div className="video-stats-actions">
+            <div className="video-stats">
+              <span>{formatViewCount(video.views_count)} views</span>
+              <span className="separator">•</span>
+              <span>{formatDate(video.created_at)}</span>
+            </div>
+
+            <button
+              className={`like-button ${isLiked ? 'liked' : ''}`}
+              onClick={handleLike}
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill={isLiked ? "currentColor" : "none"}
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+              </svg>
+              <span>{formatViewCount(likeCount)}</span>
+            </button>
           </div>
 
           {/* Channel info */}
@@ -145,12 +214,17 @@ const Watch = () => {
               <div className="channel-details">
                 <div className="channel-name">{video.user.username}</div>
                 <div className="subscriber-count">
-                  {formatViewCount(video.user.subscriber_count)} subscribers
+                  {formatViewCount(subscriberCount)} subscribers
                 </div>
               </div>
             </div>
 
-            <button className="subscribe-button">Subscribe</button>
+            <button
+              className={`subscribe-button ${isSubscribed ? 'subscribed' : ''}`}
+              onClick={handleSubscribe}
+            >
+              {isSubscribed ? 'Subscribed' : 'Subscribe'}
+            </button>
           </div>
 
           {/* Description */}

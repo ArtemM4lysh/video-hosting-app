@@ -6,6 +6,7 @@ import Home from './components/Home';
 import Channel from './components/Channel';
 import Watch from './components/Watch';
 import VideoUpload from './components/VideoUpload';
+import PlaylistDetail from './components/PlaylistDetail';
 import Navbar from './components/Navbar';
 import authService from './services/auth';
 import './App.css';
@@ -69,6 +70,15 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <VideoUpload />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/playlist/:playlistId"
+          element={
+            <ProtectedRoute>
+              <PlaylistDetail />
             </ProtectedRoute>
           }
         />

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import videoService from '../services/video';
 import Avatar from './Avatar';
+import Sidebar from './Sidebar';
 import './Home.css';
 
 const Home = ({ searchQuery }) => {
@@ -65,25 +66,33 @@ const Home = ({ searchQuery }) => {
 
   if (loading && videos.length === 0) {
     return (
-      <div className="home-container">
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Loading videos...</p>
+      <>
+        <Sidebar />
+        <div className="home-container-with-sidebar">
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <p>Loading videos...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="home-container">
-        <div className="error-message">{error}</div>
-      </div>
+      <>
+        <Sidebar />
+        <div className="home-container-with-sidebar">
+          <div className="error-message">{error}</div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="home-container">
+    <>
+      <Sidebar />
+      <div className="home-container-with-sidebar">
       {searchQuery && (
         <div className="search-results-header">
           <h2>Search results for "{searchQuery}"</h2>
@@ -194,7 +203,8 @@ const Home = ({ searchQuery }) => {
           )}
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import videoService from '../services/video';
+import subscriptionService from '../services/subscription';
 import authService from '../services/auth';
 import Avatar from './Avatar';
 import './Channel.css';
@@ -16,6 +17,8 @@ const Channel = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [isOwnChannel, setIsOwnChannel] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriberCount, setSubscriberCount] = useState(0);
 
   useEffect(() => {
     fetchChannelData();
@@ -38,11 +41,23 @@ const Channel = () => {
       // Get channel user info from first video
       if (videosList.length > 0) {
         setChannelUser(videosList[0].user);
+        setSubscriberCount(videosList[0].user.subscriber_count);
       } else {
         // If no videos, try to get current user info if it's their channel
         const currentUser = authService.getCurrentUser();
         if (currentUser && currentUser.id === parseInt(userId)) {
           setChannelUser(currentUser);
+          setSubscriberCount(currentUser.subscriber_count || 0);
+        }
+      }
+
+      // Check subscription status
+      if (!isOwnChannel) {
+        try {
+          const subStatus = await subscriptionService.checkSubscription(userId);
+          setIsSubscribed(subStatus.is_subscribed);
+        } catch (err) {
+          console.error('Error checking subscription status:', err);
         }
       }
 
@@ -79,6 +94,23 @@ const Channel = () => {
 
   const handleCancelDelete = () => {
     setDeleteConfirm(null);
+  };
+
+  const handleSubscribe = async () => {
+    try {
+      if (isSubscribed) {
+        await subscriptionService.unsubscribe(userId);
+        setIsSubscribed(false);
+        setSubscriberCount((prev) => Math.max(0, prev - 1));
+      } else {
+        await subscriptionService.subscribe(userId);
+        setIsSubscribed(true);
+        setSubscriberCount((prev) => prev + 1);
+      }
+    } catch (err) {
+      console.error('Error toggling subscription:', err);
+      alert('Failed to update subscription. Please try again.');
+    }
   };
 
   const formatViewCount = (count) => {
@@ -152,11 +184,19 @@ const Channel = () => {
             <h1 className="channel-name">{channelUser.username}</h1>
             {channelUser.bio && <p className="channel-bio">{channelUser.bio}</p>}
             <div className="channel-stats">
-              <span>{channelUser.subscriber_count} subscribers</span>
+              <span>{formatViewCount(subscriberCount)} subscribers</span>
               <span className="stat-separator">•</span>
               <span>{videos.length} videos</span>
             </div>
           </div>
+          {!isOwnChannel && (
+            <button
+              className={`subscribe-button-channel ${isSubscribed ? 'subscribed' : ''}`}
+              onClick={handleSubscribe}
+            >
+              {isSubscribed ? 'Subscribed' : 'Subscribe'}
+            </button>
+          )}
         </div>
       </div>
 

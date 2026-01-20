@@ -63,10 +63,16 @@
   line-height: 1.4;
 }
 
+.video-stats-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .video-stats {
   font-size: 14px;
   color: #666;
-  margin-bottom: 20px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -74,6 +80,42 @@
 
 .separator {
   font-size: 12px;
+}
+
+.like-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.like-button:hover {
+  background: #e0e0e0;
+}
+
+.like-button.liked {
+  background: #3498db;
+  color: white;
+}
+
+.like-button.liked:hover {
+  background: #2980b9;
+}
+
+.like-button svg {
+  transition: transform 0.2s ease;
+}
+
+.like-button:active svg {
+  transform: scale(1.2);
 }
 
 /* Channel info */
@@ -130,6 +172,15 @@
 
 .subscribe-button:hover {
   background: #d32f2f;
+}
+
+.subscribe-button.subscribed {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.subscribe-button.subscribed:hover {
+  background: #d0d0d0;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
 }
