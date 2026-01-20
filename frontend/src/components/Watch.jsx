@@ -17,10 +17,12 @@ const Watch = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [subscriberCount, setSubscriberCount] = useState(0);
   const [likeCount, setLikeCount] = useState(0);
+  const [recommendedVideos, setRecommendedVideos] = useState([]);
   const videoRef = useRef(null);
 
   useEffect(() => {
     fetchVideo();
+    fetchRecommendedVideos();
   }, [videoId]);
 
   const fetchVideo = async () => {
@@ -48,6 +50,17 @@ const Watch = () => {
       setError('Failed to load video');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRecommendedVideos = async () => {
+    try {
+      const response = await videoService.getAllVideos(1, '');
+      // Get first 10 videos excluding the current one
+      const filtered = (response.results || []).filter(v => v.id !== videoId).slice(0, 10);
+      setRecommendedVideos(filtered);
+    } catch (err) {
+      console.error('Error fetching recommended videos:', err);
     }
   };
 
@@ -117,6 +130,20 @@ const Watch = () => {
       month: 'long',
       day: 'numeric',
     });
+  };
+
+  const formatTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (seconds < 60) return 'Just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`;
+    if (seconds < 2592000) return `${Math.floor(seconds / 604800)} weeks ago`;
+    if (seconds < 31536000) return `${Math.floor(seconds / 2592000)} months ago`;
+    return `${Math.floor(seconds / 31536000)} years ago`;
   };
 
   if (loading) {
@@ -264,9 +291,46 @@ const Watch = () => {
         </div>
       </div>
 
-      {/* Sidebar with related videos could go here in the future */}
+      {/* Sidebar with recommended videos */}
       <div className="watch-sidebar">
-        <h3 className="sidebar-title">More videos coming soon</h3>
+        <h3 className="sidebar-title">Recommended</h3>
+        {recommendedVideos.length > 0 ? (
+          <div className="recommended-videos">
+            {recommendedVideos.map((recVideo) => (
+              <div
+                key={recVideo.id}
+                className="recommended-video-card"
+                onClick={() => navigate(`/watch/${recVideo.id}`)}
+              >
+                <div className="recommended-thumbnail">
+                  {recVideo.thumbnail_url ? (
+                    <img src={recVideo.thumbnail_url} alt={recVideo.title} />
+                  ) : (
+                    <div className="recommended-placeholder">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                      </svg>
+                    </div>
+                  )}
+                  {recVideo.duration && (
+                    <span className="recommended-duration">
+                      {Math.floor(recVideo.duration / 60)}:{String(recVideo.duration % 60).padStart(2, '0')}
+                    </span>
+                  )}
+                </div>
+                <div className="recommended-info">
+                  <h4 className="recommended-title">{recVideo.title}</h4>
+                  <div className="recommended-channel">{recVideo.user.username}</div>
+                  <div className="recommended-meta">
+                    {formatViewCount(recVideo.views_count)} views • {formatTimeAgo(recVideo.created_at)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="no-recommendations">No recommendations available</p>
+        )}
       </div>
     </div>
   );

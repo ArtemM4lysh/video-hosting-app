@@ -24,7 +24,7 @@
 .navbar-logo {
   font-size: 24px;
   font-weight: 600;
-  color: #667eea;
+  color: #9333ea;
   margin: 0;
   cursor: pointer;
   transition: opacity 0.2s ease;
@@ -36,9 +36,41 @@
 
 .navbar-center {
   flex: 1;
-  max-width: 600px;
+  max-width: 900px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 8px;
+}
+
+.navbar-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: transparent;
+  border: none;
+  color: #666;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.navbar-link:hover {
+  background: #f3f4f6;
+  color: #9333ea;
+}
+
+.navbar-link svg {
+  width: 18px;
+  height: 18px;
 }
 
 .search-form {
@@ -59,7 +91,7 @@
 }
 
 .search-input:focus {
-  border-color: #667eea;
+  border-color: #9333ea;
 }
 
 .search-button {
@@ -96,8 +128,8 @@
   gap: 8px;
   padding: 8px 16px;
   background: transparent;
-  border: 1px solid #667eea;
-  color: #667eea;
+  border: 1px solid #9333ea;
+  color: #9333ea;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
@@ -106,7 +138,7 @@
 }
 
 .upload-button:hover {
-  background: #667eea;
+  background: #9333ea;
   color: white;
 }
 
@@ -147,7 +179,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
   color: white;
 }
 

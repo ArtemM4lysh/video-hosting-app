@@ -11,6 +11,7 @@ from .serializers import (VideoSerializer, VideoCreateSerializer,
                          SubscriptionSerializer, LikeSerializer,
                          PlaylistSerializer, PlaylistCreateSerializer,
                          PlaylistVideoSerializer, WatchHistorySerializer)
+from .utils import generate_thumbnail_from_s3, get_video_metadata, generate_hover_thumbnails_from_s3
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 import uuid
@@ -103,12 +104,47 @@ class VideoViewSet(viewsets.ModelViewSet):
         if video.user != request.user:
             return Response({'error': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
 
+        # Mark video as ready immediately to allow playback
+        # Processing can be done in background later
         video.status = 'ready'
         video.save()
 
-        # TODO: Trigger thumbnail generation task here
-        # This would be done asynchronously with Celery + FFmpeg
-        # For now, we'll handle it in a separate endpoint or background task
+        # Try to process thumbnails and metadata, but don't fail if it doesn't work
+        try:
+            # Extract video metadata (duration, resolution)
+            metadata = get_video_metadata(video.s3_key)
+            if metadata:
+                video.duration = metadata['duration']
+                video.resolution = metadata['resolution']
+                video.save()
+        except Exception as e:
+            print(f"Error extracting metadata: {e}")
+            # Continue without metadata
+
+        try:
+            # Generate main thumbnail (at 1 second)
+            thumbnail_s3_key = f"thumbnails/{video.user.id}/{video.id}.jpg"
+            thumbnail_success = generate_thumbnail_from_s3(video.s3_key, thumbnail_s3_key)
+            if thumbnail_success:
+                video.thumbnail_s3_key = thumbnail_s3_key
+                video.save()
+        except Exception as e:
+            print(f"Error generating main thumbnail: {e}")
+            # Continue without thumbnail
+
+        try:
+            # Generate hover preview thumbnails (every 5 seconds)
+            hover_thumbnail_keys = generate_hover_thumbnails_from_s3(
+                video.s3_key,
+                video.user.id,
+                video.id
+            )
+            if hover_thumbnail_keys:
+                video.hover_thumbnails = hover_thumbnail_keys
+                video.save()
+        except Exception as e:
+            print(f"Error generating hover thumbnails: {e}")
+            # Continue without hover thumbnails
 
         serializer = VideoSerializer(video)
         return Response(serializer.data)

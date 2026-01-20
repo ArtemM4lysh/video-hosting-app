@@ -19,7 +19,14 @@
       "Bash(python -c:*)",
       "Bash(grep:*)",
       "Bash(DJANGO_SETTINGS_MODULE=config.settings.production python manage.py:*)",
-      "Bash(xargs kill:*)"
+      "Bash(xargs kill:*)",
+      "Bash(source env/Scripts/activate)",
+      "Bash(env/Scripts/python.exe manage.py makemigrations:*)",
+      "Bash(ls:*)",
+      "Bash(env/Scripts/pip.exe install:*)",
+      "Bash(env/Scripts/python.exe -m pip install:*)",
+      "Bash(env/Scripts/python.exe manage.py shell:*)",
+      "Bash(env/Scripts/python.exe manage.py:*)"
     ]
   }
 }

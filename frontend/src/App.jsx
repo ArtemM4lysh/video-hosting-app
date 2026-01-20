@@ -7,6 +7,9 @@ import Channel from './components/Channel';
 import Watch from './components/Watch';
 import VideoUpload from './components/VideoUpload';
 import PlaylistDetail from './components/PlaylistDetail';
+import History from './components/History';
+import Subscriptions from './components/Subscriptions';
+import Playlists from './components/Playlists';
 import Navbar from './components/Navbar';
 import authService from './services/auth';
 import './App.css';
@@ -79,6 +82,33 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <PlaylistDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/subscriptions"
+          element={
+            <ProtectedRoute>
+              <Subscriptions />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/playlists"
+          element={
+            <ProtectedRoute>
+              <Playlists />
             </ProtectedRoute>
           }
         />

@@ -18,6 +18,7 @@ class Video(models.Model):
     # S3 storage paths
     s3_key = models.CharField(max_length=500)  # Raw video file path in S3
     thumbnail_s3_key = models.CharField(max_length=500, blank=True, null=True)
+    hover_thumbnails = models.JSONField(default=list, blank=True)  # List of S3 keys for hover preview
 
     # Video metadata
     duration = models.IntegerField(null=True, blank=True)  # in seconds

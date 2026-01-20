@@ -8,6 +8,7 @@ class VideoSerializer(serializers.ModelSerializer):
     upload_url = serializers.SerializerMethodField()
     video_url = serializers.SerializerMethodField()
     thumbnail_url = serializers.SerializerMethodField()
+    hover_thumbnails_urls = serializers.SerializerMethodField()
 
     class Meta:
         model = Video
@@ -15,9 +16,9 @@ class VideoSerializer(serializers.ModelSerializer):
             'id', 'user', 'title', 'description', 's3_key', 'thumbnail_s3_key',
             'duration', 'file_size', 'resolution', 'status',
             'views_count', 'likes_count', 'created_at', 'updated_at',
-            'upload_url', 'video_url', 'thumbnail_url'
+            'upload_url', 'video_url', 'thumbnail_url', 'hover_thumbnails_urls'
         ]
-        read_only_fields = ['id', 'user', 's3_key', 'thumbnail_s3_key', 'status', 'views_count', 'likes_count', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'user', 's3_key', 'thumbnail_s3_key', 'hover_thumbnails', 'status', 'views_count', 'likes_count', 'created_at', 'updated_at']
 
     def get_upload_url(self, obj):
         # Return presigned URL for uploading (will be generated in view)
@@ -48,6 +49,23 @@ class VideoSerializer(serializers.ModelSerializer):
                 ExpiresIn=3600
             )
         return None
+
+    def get_hover_thumbnails_urls(self, obj):
+        # Return presigned URLs for hover preview thumbnails
+        if obj.hover_thumbnails and len(obj.hover_thumbnails) > 0:
+            import boto3
+            from django.conf import settings
+            s3_client = boto3.client('s3', region_name=settings.AWS_S3_REGION_NAME)
+            urls = []
+            for s3_key in obj.hover_thumbnails:
+                url = s3_client.generate_presigned_url(
+                    'get_object',
+                    Params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME, 'Key': s3_key},
+                    ExpiresIn=3600
+                )
+                urls.append(url)
+            return urls
+        return []
 
 
 class VideoCreateSerializer(serializers.ModelSerializer):
