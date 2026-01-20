@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/auth';
+import authService from '../services/auth';
 import './Register.css';
 
 function Register() {
@@ -29,7 +29,7 @@ function Register() {
 
     try {
       await authService.register(formData);
-      navigate('/dashboard');
+      navigate('/home');
     } catch (err) {
       if (err.response?.data) {
         const errors = err.response.data;

@@ -31,8 +31,21 @@ export const videoService = {
     return response.data;
   },
 
+  async getAllVideos(page = 1, search = '') {
+    const params = new URLSearchParams({ page });
+    if (search) params.append('search', search);
+    const response = await api.get(`/videos/?${params.toString()}`);
+    return response.data;
+  },
+
   async getMyVideos() {
     const response = await api.get('/videos/my_videos/');
+    return response.data;
+  },
+
+  async getUserVideos(userId, page = 1) {
+    const params = new URLSearchParams({ page, user_id: userId });
+    const response = await api.get(`/videos/?${params.toString()}`);
     return response.data;
   },
 
@@ -41,4 +54,16 @@ export const videoService = {
     const response = await api.get(`/videos/${videoId}/`);
     return response.data;
   },
+
+  async incrementView(videoId) {
+    const response = await api.post(`/videos/${videoId}/increment_view/`);
+    return response.data;
+  },
+
+  async deleteVideo(videoId) {
+    const response = await api.delete(`/videos/${videoId}/delete_video/`);
+    return response.data;
+  },
 };
+
+export default videoService;

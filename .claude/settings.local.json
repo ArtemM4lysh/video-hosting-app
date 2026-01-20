@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(npm run dev:*)",
+      "Bash(python manage.py show_urls:*)",
+      "Bash(python manage.py shell:*)"
     ]
   }
 }

@@ -1,39 +1,89 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Register from './components/Register';
 import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import { authService } from './services/auth';
+import Home from './components/Home';
+import Channel from './components/Channel';
+import Watch from './components/Watch';
+import VideoUpload from './components/VideoUpload';
+import Navbar from './components/Navbar';
+import authService from './services/auth';
 import './App.css';
-import VideoUpload from "./components/VideoUpload.jsx";
 
 function ProtectedRoute({ children }) {
   return authService.isAuthenticated() ? children : <Navigate to="/login" />;
 }
 
-function App() {
+function AppContent() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(authService.isAuthenticated());
+  const location = useLocation();
+
+  useEffect(() => {
+    // Update auth state when location changes
+    setIsAuthenticated(authService.isAuthenticated());
+  }, [location]);
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
   return (
-    <Router>
+    <>
+      {isAuthenticated && <Navbar onSearch={handleSearch} />}
+
       <Routes>
-        <Route path="/" element={<Navigate to="/register" />} />
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+
         <Route
-          path="/dashboard"
+          path="/home"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Home searchQuery={searchQuery} />
             </ProtectedRoute>
           }
         />
-      <Route
-      path="/upload"
-      element={
-        <ProtectedRoute>
-          <VideoUpload />
-        </ProtectedRoute>
-      }
-    />
+
+        <Route
+          path="/channel/:userId"
+          element={
+            <ProtectedRoute>
+              <Channel />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/watch/:videoId"
+          element={
+            <ProtectedRoute>
+              <Watch />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/upload"
+          element={
+            <ProtectedRoute>
+              <VideoUpload />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Redirect old dashboard route to home */}
+        <Route path="/dashboard" element={<Navigate to="/home" />} />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

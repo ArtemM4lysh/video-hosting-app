@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/auth';
+import authService from '../services/auth';
 import './Login.css';
 
 function Login() {
@@ -26,7 +26,7 @@ function Login() {
 
     try {
       await authService.login(formData.email, formData.password);
-      navigate('/dashboard');
+      navigate('/home');
     } catch (err) {
       if (err.response?.data?.error) {
         setError(err.response.data.error);
