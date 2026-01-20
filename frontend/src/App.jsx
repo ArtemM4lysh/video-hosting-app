@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import { authService } from './services/auth';
 import './App.css';
+import VideoUpload from "./components/VideoUpload.jsx";
 
 function ProtectedRoute({ children }) {
   return authService.isAuthenticated() ? children : <Navigate to="/login" />;
@@ -24,6 +25,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+      <Route
+      path="/upload"
+      element={
+        <ProtectedRoute>
+          <VideoUpload />
+        </ProtectedRoute>
+      }
+    />
       </Routes>
     </Router>
   );
