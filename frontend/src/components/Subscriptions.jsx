@@ -86,8 +86,8 @@ const Subscriptions = () => {
               onClick={() => navigate(`/watch/${video.id}`)}
             >
               <div className="subscription-video-thumbnail">
-                {video.thumbnail_url ? (
-                  <img src={video.thumbnail_url} alt={video.title} />
+                {(video.thumbnail_url || video.preview_url) ? (
+                  <img src={video.thumbnail_url || video.preview_url} alt={video.title} />
                 ) : (
                   <div className="thumbnail-placeholder">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

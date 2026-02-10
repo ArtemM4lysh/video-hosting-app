@@ -108,8 +108,8 @@ const Playlists = () => {
               onClick={() => navigate(`/playlist/${playlist.id}`)}
             >
               <div className="playlist-thumbnail">
-                {playlist.playlist_videos && playlist.playlist_videos.length > 0 && playlist.playlist_videos[0].video.thumbnail_url ? (
-                  <img src={playlist.playlist_videos[0].video.thumbnail_url} alt={playlist.name} />
+                {playlist.playlist_videos && playlist.playlist_videos.length > 0 && (playlist.playlist_videos[0].video.thumbnail_url || playlist.playlist_videos[0].video.preview_url) ? (
+                  <img src={playlist.playlist_videos[0].video.thumbnail_url || playlist.playlist_videos[0].video.preview_url} alt={playlist.name} />
                 ) : (
                   <div className="playlist-placeholder">
                     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

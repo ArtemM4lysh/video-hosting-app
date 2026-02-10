@@ -138,8 +138,8 @@ const PlaylistDetail = () => {
                                 <div className="video-index">{index + 1}</div>
                                 <Link to={`/watch/${item.video.id}`} className="video-content">
                                     <div className="video-thumbnail">
-                                        {item.video.thumbnail_url ? (
-                                            <img src={item.video.thumbnail_url} alt={item.video.title} />
+                                        {(item.video.thumbnail_url || item.video.preview_url) ? (
+                                            <img src={item.video.thumbnail_url || item.video.preview_url} alt={item.video.title} />
                                         ) : (
                                             <div className="thumbnail-placeholder">
                                                 <svg

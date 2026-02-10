@@ -11,7 +11,7 @@ from .serializers import (VideoSerializer, VideoCreateSerializer,
                          SubscriptionSerializer, LikeSerializer,
                          PlaylistSerializer, PlaylistCreateSerializer,
                          PlaylistVideoSerializer, WatchHistorySerializer)
-from .utils import generate_thumbnail_from_s3, get_video_metadata, generate_hover_thumbnails_from_s3
+from .utils import generate_thumbnail_from_s3, get_video_metadata, generate_hover_thumbnails_from_s3, generate_preview_from_s3
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 import uuid
@@ -133,6 +133,16 @@ class VideoViewSet(viewsets.ModelViewSet):
             # Continue without thumbnail
 
         try:
+            # Generate preview image (first frame of video)
+            preview_s3_key = f"previews/{video.user.id}/{video.id}.jpg"
+            preview_success = generate_preview_from_s3(video.s3_key, preview_s3_key)
+            if preview_success:
+                video.preview_s3_key = preview_s3_key
+                video.save()
+        except Exception as e:
+            print(f"Error generating preview image: {e}")
+
+        try:
             # Generate hover preview thumbnails (every 5 seconds)
             hover_thumbnail_keys = generate_hover_thumbnails_from_s3(
                 video.s3_key,
@@ -200,6 +210,12 @@ class VideoViewSet(viewsets.ModelViewSet):
                 s3_client.delete_object(
                     Bucket=settings.AWS_STORAGE_BUCKET_NAME,
                     Key=video.thumbnail_s3_key
+                )
+            # Delete preview image if exists
+            if video.preview_s3_key:
+                s3_client.delete_object(
+                    Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+                    Key=video.preview_s3_key
                 )
         except Exception as e:
             print(f"Error deleting from S3: {e}")

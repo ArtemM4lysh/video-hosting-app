@@ -71,6 +71,72 @@ def generate_thumbnail_from_s3(video_s3_key, thumbnail_s3_key):
         return False
 
 
+def generate_preview_from_s3(video_s3_key, preview_s3_key):
+    """
+    Download video from S3, extract the first frame as a preview image, upload back to S3.
+    Returns True if successful, False otherwise.
+    """
+    s3_client = boto3.client(
+        's3',
+        region_name=settings.AWS_S3_REGION_NAME,
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+    )
+
+    video_path = None
+    preview_path = None
+
+    try:
+        with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as video_temp:
+            video_path = video_temp.name
+
+        with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as preview_temp:
+            preview_path = preview_temp.name
+
+        # Download video from S3
+        s3_client.download_file(
+            settings.AWS_STORAGE_BUCKET_NAME,
+            video_s3_key,
+            video_path
+        )
+
+        # Extract the very first frame (timestamp 0)
+        (
+            ffmpeg
+            .input(video_path, ss=0)
+            .filter('scale', 640, -1)
+            .output(preview_path, vframes=1, format='image2', vcodec='mjpeg')
+            .overwrite_output()
+            .run(capture_stdout=True, capture_stderr=True)
+        )
+
+        # Upload preview image to S3
+        with open(preview_path, 'rb') as preview_file:
+            s3_client.upload_fileobj(
+                preview_file,
+                settings.AWS_STORAGE_BUCKET_NAME,
+                preview_s3_key,
+                ExtraArgs={'ContentType': 'image/jpeg'}
+            )
+
+        # Cleanup temp files
+        os.unlink(video_path)
+        os.unlink(preview_path)
+
+        return True
+
+    except Exception as e:
+        print(f"Error generating preview image: {e}")
+        try:
+            if video_path and os.path.exists(video_path):
+                os.unlink(video_path)
+            if preview_path and os.path.exists(preview_path):
+                os.unlink(preview_path)
+        except:
+            pass
+        return False
+
+
 def get_video_metadata(video_s3_key):
     """
     Download video from S3 and extract metadata (duration, resolution)

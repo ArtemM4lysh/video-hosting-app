@@ -80,8 +80,8 @@ const Sidebar = () => {
                                 className="sidebar-video-item"
                             >
                                 <div className="sidebar-video-thumbnail">
-                                    {item.video.thumbnail_url ? (
-                                        <img src={item.video.thumbnail_url} alt={item.video.title} />
+                                    {(item.video.thumbnail_url || item.video.preview_url) ? (
+                                        <img src={item.video.thumbnail_url || item.video.preview_url} alt={item.video.title} />
                                     ) : (
                                         <div className="sidebar-video-placeholder">
                                             <span>No thumbnail</span>
@@ -112,8 +112,8 @@ const Sidebar = () => {
                                 className="sidebar-video-item"
                             >
                                 <div className="sidebar-video-thumbnail">
-                                    {video.thumbnail_url ? (
-                                        <img src={video.thumbnail_url} alt={video.title} />
+                                    {(video.thumbnail_url || video.preview_url) ? (
+                                        <img src={video.thumbnail_url || video.preview_url} alt={video.title} />
                                     ) : (
                                         <div className="sidebar-video-placeholder">
                                             <span>No thumbnail</span>

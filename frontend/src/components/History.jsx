@@ -105,8 +105,8 @@ const History = () => {
               onClick={() => navigate(`/watch/${item.video.id}`)}
             >
               <div className="history-video-thumbnail">
-                {item.video.thumbnail_url ? (
-                  <img src={item.video.thumbnail_url} alt={item.video.title} />
+                {(item.video.thumbnail_url || item.video.preview_url) ? (
+                  <img src={item.video.thumbnail_url || item.video.preview_url} alt={item.video.title} />
                 ) : (
                   <div className="thumbnail-placeholder">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

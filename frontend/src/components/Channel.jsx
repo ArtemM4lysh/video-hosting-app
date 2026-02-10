@@ -246,8 +246,8 @@ const Channel = () => {
                   onClick={() => handleVideoClick(video.id)}
                 >
                   <div className="video-thumbnail">
-                    {video.thumbnail_url ? (
-                      <img src={video.thumbnail_url} alt={video.title} />
+                    {(video.thumbnail_url || video.preview_url) ? (
+                      <img src={video.thumbnail_url || video.preview_url} alt={video.title} />
                     ) : (
                       <div className="thumbnail-placeholder">
                         <svg

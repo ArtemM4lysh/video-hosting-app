@@ -178,6 +178,7 @@ const Watch = () => {
               ref={videoRef}
               className="video-player"
               controls
+              poster={video.preview_url || video.thumbnail_url || undefined}
               onPlay={handleVideoPlay}
             >
               <source src={video.video_url} type="video/mp4" />
@@ -303,8 +304,8 @@ const Watch = () => {
                 onClick={() => navigate(`/watch/${recVideo.id}`)}
               >
                 <div className="recommended-thumbnail">
-                  {recVideo.thumbnail_url ? (
-                    <img src={recVideo.thumbnail_url} alt={recVideo.title} />
+                  {(recVideo.thumbnail_url || recVideo.preview_url) ? (
+                    <img src={recVideo.thumbnail_url || recVideo.preview_url} alt={recVideo.title} />
                   ) : (
                     <div className="recommended-placeholder">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
