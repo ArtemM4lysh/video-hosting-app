@@ -64,6 +64,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# FFmpeg binary paths (set via env vars or leave None to use system PATH)
+import os as _os
+import shutil as _shutil
+FFMPEG_PATH = _os.getenv('FFMPEG_PATH') or _shutil.which('ffmpeg') or 'ffmpeg'
+FFPROBE_PATH = _os.getenv('FFPROBE_PATH') or _shutil.which('ffprobe') or 'ffprobe'
+
 # REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

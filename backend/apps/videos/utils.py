@@ -6,6 +6,16 @@ from django.conf import settings
 from io import BytesIO
 
 
+def _get_ffmpeg_cmd():
+    """Return the ffmpeg path from settings."""
+    return getattr(settings, 'FFMPEG_PATH', 'ffmpeg')
+
+
+def _get_ffprobe_cmd():
+    """Return the ffprobe path from settings."""
+    return getattr(settings, 'FFPROBE_PATH', 'ffprobe')
+
+
 def generate_thumbnail_from_s3(video_s3_key, thumbnail_s3_key):
     """
     Download video from S3, extract thumbnail using FFmpeg, upload back to S3
@@ -40,7 +50,7 @@ def generate_thumbnail_from_s3(video_s3_key, thumbnail_s3_key):
             .filter('scale', 640, -1)
             .output(thumb_path, vframes=1, format='image2', vcodec='mjpeg')
             .overwrite_output()
-            .run(capture_stdout=True, capture_stderr=True)
+            .run(cmd=_get_ffmpeg_cmd(), capture_stdout=True, capture_stderr=True)
         )
 
         # Upload thumbnail to S3
@@ -107,7 +117,7 @@ def generate_preview_from_s3(video_s3_key, preview_s3_key):
             .filter('scale', 640, -1)
             .output(preview_path, vframes=1, format='image2', vcodec='mjpeg')
             .overwrite_output()
-            .run(capture_stdout=True, capture_stderr=True)
+            .run(cmd=_get_ffmpeg_cmd(), capture_stdout=True, capture_stderr=True)
         )
 
         # Upload preview image to S3
@@ -162,7 +172,7 @@ def get_video_metadata(video_s3_key):
         )
 
         # Get video metadata using FFmpeg probe
-        probe = ffmpeg.probe(video_path)
+        probe = ffmpeg.probe(video_path, cmd=_get_ffprobe_cmd())
         video_info = next(s for s in probe['streams'] if s['codec_type'] == 'video')
 
         duration = float(probe['format']['duration'])
@@ -216,7 +226,7 @@ def generate_hover_thumbnails_from_s3(video_s3_key, user_id, video_id):
         )
 
         # Get video duration
-        probe = ffmpeg.probe(video_path)
+        probe = ffmpeg.probe(video_path, cmd=_get_ffprobe_cmd())
         duration = float(probe['format']['duration'])
 
         # Generate thumbnails every 5 seconds
@@ -242,7 +252,7 @@ def generate_hover_thumbnails_from_s3(video_s3_key, user_id, video_id):
                     .filter('scale', 640, -1)
                     .output(thumb_path, vframes=1, format='image2', vcodec='mjpeg')
                     .overwrite_output()
-                    .run(capture_stdout=True, capture_stderr=True, quiet=True)
+                    .run(cmd=_get_ffmpeg_cmd(), capture_stdout=True, capture_stderr=True, quiet=True)
                 )
 
                 # Upload to S3
